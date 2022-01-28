@@ -6,33 +6,28 @@
     :error="loadingError"
   >
     <div class="search-container">
-      <form @submit.prevent="search" class="">
-        <Input
-          :text="query"
-          :value="query"
-          @update:value="query = $event"
-          :submitter="search"
-        />
-      </form>
+      <template v-if="loadingList">Searching for </template>
+      <template v-else>Search Results for </template>
+
+      <span class="search-text">"{{ searchText }}"</span>
     </div>
   </Layout>
 </template>
 
 <script>
 import Layout from "@/views/layout.vue";
-import Input from "@/components/Input.vue";
 
 export default {
-  name: "Home",
-  components: { Layout, Input },
+  name: "Search",
+  components: { Layout },
   data() {
     return {
-      query: "",
+      searchText: "",
     };
   },
   computed: {
     photoList() {
-      return this.$store.state.photos;
+      return this.$store.state.search.results;
     },
     loadingList() {
       return this.$store.state.loading;
@@ -42,14 +37,12 @@ export default {
     },
   },
   mounted() {
+    this.searchText = this.$route.query.q;
     this.loadPhotos();
   },
   methods: {
-    search() {
-      this.$router.push({ path: "/search", query: { q: this.query } });
-    },
     loadPhotos() {
-      return this.$store.dispatch("getPhotos");
+      return this.$store.dispatch("searchPhotos", this.searchText);
     },
   },
 };
@@ -63,6 +56,10 @@ export default {
 
   @media (min-width: 600px) {
     font-size: 2.5rem;
+  }
+
+  .search-text {
+    color: var(--gray-dark);
   }
 }
 </style>
